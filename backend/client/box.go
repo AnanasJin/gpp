@@ -33,7 +33,7 @@ func getOUt(peer *config.Peer) option.Outbound {
 				},
 				Multiplex: &option.OutboundMultiplexOptions{
 					Enabled:        true,
-					Protocol:       "h2mux",
+					Protocol:       "smux",
 					MaxConnections: 16,
 					MinStreams:     32,
 					Padding:        false,
@@ -74,6 +74,26 @@ func getOUt(peer *config.Peer) option.Outbound {
 					},
 				},
 				BrutalDebug: false,
+			},
+		}
+	case "tuic":
+		out = option.Outbound{
+			Type: "tuic",
+			TUICOptions: option.TUICOutboundOptions{
+				ServerOptions: option.ServerOptions{
+					Server:     peer.Addr,
+					ServerPort: peer.Port,
+				},
+				UUID: peer.UUID,
+				Password: peer.UUID,
+				OutboundTLSOptionsContainer: option.OutboundTLSOptionsContainer{
+					TLS: &option.OutboundTLSOptions{
+						Enabled:    true,
+						ServerName: "gpp",
+						Insecure:   true,
+						ALPN:       option.Listable[string]{"h3"},
+					},
+				},
 			},
 		}
 	case "direct":

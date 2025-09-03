@@ -79,6 +79,34 @@ func Server(conf Peer) error {
 				},
 			},
 		}
+	case "tuic":
+		c, k := generateKey()
+		in = option.Inbound{
+			Type: "tuic",
+			Tag:  "tuic-in",
+			TUICOptions: option.TUICInboundOptions{
+				ListenOptions: option.ListenOptions{
+					Listen:     option.NewListenAddress(netip.MustParseAddr(conf.Addr)),
+					ListenPort: conf.Port,
+				},
+				Users: []option.TUICUser{
+					{
+						Name:     "gpp",
+						UUID: conf.UUID,
+						Password: conf.UUID,
+					},
+				},
+				InboundTLSOptionsContainer: option.InboundTLSOptionsContainer{
+					TLS: &option.InboundTLSOptions{
+						Enabled:     true,
+						ServerName:  "gpp",
+						ALPN:        option.Listable[string]{"h3"},
+						Certificate: option.Listable[string]{c},
+						Key:         option.Listable[string]{k},
+					},
+				},
+			},
+		}
 	default:
 		in = option.Inbound{
 			Type: "vless",
